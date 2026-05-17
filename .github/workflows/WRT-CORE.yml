@@ -164,14 +164,30 @@ jobs:
       - name: Custom Settings
         run: |
           cd ./wrt/
-
-          rm -rf ./tmp* ./.config*
-
-          cat $GITHUB_WORKSPACE/Config/$WRT_TARGET.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
-
+          
+          # 1. 先跑原作者的脚本，修改主机名、IP等，不污染 .config
+          chmod +x $GITHUB_WORKSPACE/Scripts/Settings.sh
           $GITHUB_WORKSPACE/Scripts/Settings.sh
-
-          make defconfig -j$(nproc)
+          
+          # 2. 脚本跑完后，清空残留，强行灌注 ZN-M2 的核心配置
+          rm -rf ./tmp* ./.config*
+          cat $GITHUB_WORKSPACE/Config/$WRT_TARGET.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
+          
+          # 3. 在这里执行单线程 defconfig，让配置铁板定型
+          make defconfig
+          
+          # 4. 🛡️ 【生死安检拦截】
+          if grep -q "CONFIG_TARGET_qualcommax_ipq60xx_DEVICE_8devices_mango-dvk=y" .config; then
+            echo "❌ 严重错误：配置再次偏航！系统试图编译默认的 8devices 固件！"
+            exit 1
+          fi
+          
+          if ! grep -q "CONFIG_TARGET_qualcommax_ipq60xx_DEVICE_zn_m2=y" .config; then
+            echo "❌ 严重错误：未检测到 ZN-M2 核心，拒绝编译！"
+            exit 1
+          fi
+          
+          echo "✅ 配置完全锁死：当前已铁定进入高通兆能 ZN-M2 赛道！"
 
       - name: Download Packages
         if: env.WRT_TEST != 'true'
