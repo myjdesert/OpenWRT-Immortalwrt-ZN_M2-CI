@@ -1,14 +1,15 @@
-#CI项目
+# =========================================================
+# 🎯 兆能 ZN-M2 编译专用触发器
+# =========================================================
 name: QCA-ZN_M2
 
-#CI计划
 on:
-  #自动编译：当Auto-Clean运行完成后
+  # 自动编译：当 Auto-Clean 运行完成后自动触发
   workflow_run:
     workflows: ["Auto-Clean"]
     types:
       - completed
-  #手动编译
+  # 手动触发编译
   workflow_dispatch:
     inputs:
       PACKAGE:
@@ -21,42 +22,30 @@ on:
         required: false
         type: boolean
 
-#CI权限
+# 赋予 Actions 写入 Release 的最高权限
 permissions: write-all
 
-#CI任务
 jobs:
   config:
-    name: ${{matrix.TARGET}}
-    strategy:
-      fail-fast: false
-      #max-parallel: 3
-      matrix:
-        TARGET: [ZN_M2-WIFI-NO]
-        SOURCE: [VIKINGYFY/immortalwrt]
-
-    #调用公用编译核心WRT-CORE.yml
+    name: ZN_M2-Compile
+    # 显式调用你的公用核心编译控制中心
     uses: ./.github/workflows/WRT-CORE.yml
     with:
-      #编译平台
-      WRT_TARGET: ${{matrix.TARGET}}
-      #默认主题
+      # 1. 对应 Config 目录下的配置文件名（ZN_M2-WIFI-NO.txt）
+      WRT_TARGET: ZN_M2-WIFI-NO
+      
+      # 2. 强行锁定 ImmortalWrt 官方最新对高通极其友好的 24.10 主线
+      WRT_REPO: https://github.com/immortalwrt/immortalwrt.git
+      WRT_BRANCH: openwrt-24.10
+      
+      # 3. 基础外观及网络默认属性微调
       WRT_THEME: argon
-      #默认主机名
-      WRT_NAME: OWRT
-      #默认WIFI名
-      WRT_WIFI: OWRT
-      #默认地址
-      WRT_IP: 192.168.100.1
-      #默认密码，仅作提示，修改无用
-      WRT_PW: 无
-      #源码链接
-      WRT_REPO: https://github.com/${{matrix.SOURCE}}.git
-      #源码分支
-      WRT_BRANCH: ${{matrix.BRANCH || 'main'}}
-      #源码名称
-      WRT_SOURCE: ${{matrix.SOURCE}}
-      #插件调整
-      WRT_PACKAGE: ${{inputs.PACKAGE}}
-      #仅输出配置文件
-      WRT_TEST: ${{inputs.TEST}}
+      WRT_NAME: ZN-M2
+      WRT_WIFI: ZN-M2_WiFi
+      WRT_IP: 192.168.1.1
+      WRT_PW: none
+      
+      # 4. 传递外部脚本识别标记
+      WRT_SOURCE: immortalwrt/immortalwrt
+      WRT_PACKAGE: ${{ inputs.PACKAGE }}
+      WRT_TEST: ${{ inputs.TEST }}
