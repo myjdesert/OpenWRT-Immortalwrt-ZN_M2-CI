@@ -12,8 +12,8 @@ if [ -f "$PW_FILE" ]; then
 	echo "Passwall structures fixed!"
 fi
 
-# 修复基础通话协议依赖冲突
+# 修复基础通话协议依赖冲突 (优化匹配，防止 libpcre2 被错误替换为 libpcre22)
 FW_FILE=$(find ../feeds/telephony/ -maxdepth 3 -type f -wholename "*/freeswitch/Makefile")
 if [ -f "$FW_FILE" ]; then
-	sed -i "s/libpcre/libpcre2/g" $FW_FILE
+	sed -i 's/\blibpcre\b/libpcre2/g' $FW_FILE
 fi
