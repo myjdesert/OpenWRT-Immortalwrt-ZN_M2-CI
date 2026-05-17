@@ -66,7 +66,7 @@ jobs:
           remove_dotnet: true
           remove_haskell: true
           remove_tool_cache: true
-          remove_swap: true
+          remove_swap: false         # 🛠️ 改成 false，允许保留 swap，直接绕过权限死锁！
           remove_packages: "android* azure* clang* dotnet* firefox* ghc* golang* google* libclang* libgl1* lld* llvm* \
             microsoft* mongodb* mono* mysql* nodejs* openjdk* php* postgresql* powershell* snap* temurin* yarn* zulu*"
           remove_packages_one_command: true
@@ -82,7 +82,9 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          docker rmi $(docker images -q)
+          # 🛠️ 加上判定：只有存在镜像时才执行删除，防止空参数报错
+          docker images -q | xargs -r docker rmi
+          
           sudo -E apt -yqq update
           sudo -E apt -yqq full-upgrade
           sudo -E apt -yqq autoremove --purge
