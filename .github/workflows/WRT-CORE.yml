@@ -182,7 +182,7 @@ jobs:
             exit 1
           fi
           
-          if ! grep -q "CONFIG_TARGET_qualcommax_ipq60xx_DEVICE_zn_m2=y" .config; then
+          if ! grep -q "CONFIG_TARGET_qualcommax_ipq60xx_DEVICE_zhaoneng_zn-m2=y" .config; then
             echo "❌ 严重错误：未检测到 ZN-M2 核心，拒绝编译！"
             exit 1
           fi
@@ -232,8 +232,8 @@ jobs:
             # 3. 彻底把不需要的 .itb 文件删掉，腾出空间并防止误刷
             find ./bin/targets/ -type f -name "*.itb" -exec rm -f {} \;
             
-            # 4. 精准打捞：只把真正带有 zn_m2 或 squashfs-sysupgrade 的传统固件移动到上传夹
-            find ./bin/targets/ -type f \( -name "*zn_m2*" -o -name "*sysupgrade.bin" \) -exec mv -f {} ./upload/ \;
+            # 4. 精准打捞：只把真正带有 zn-m2 或 sysupgrade 的传统固件移动到上传夹
+            find ./bin/targets/ -type f \( -iname "*zn-m2*" -o -iname "*zn_m2*" -o -name "*sysupgrade.bin" \) -exec mv -f {} ./upload/ \;
           fi
 
       - name: Release Firmware
@@ -242,11 +242,7 @@ jobs:
           tag_name: ${{env.WRT_TARGET}}_${{env.WRT_VER}}_${{env.WRT_DATE}}
           files: ./wrt/upload/*.*
           body: |
-            这是个平台固件包，内含多个设备！
-            请注意选择你需要的设备固件！
-            不要问，刷就完事了！
-
-            MTK和QCA全系带开源硬件加速，别问了！
+            带开源硬件加速
 
             源码：${{env.WRT_REPO}}
             分支：${{env.WRT_BRANCH}}
