@@ -1,10 +1,9 @@
-#zn_m2
 # =========================================================
 # 🎯 核心高通赛道：兆能 ZN-M2 核心定义
 # =========================================================
 CONFIG_TARGET_qualcommax=y
 CONFIG_TARGET_qualcommax_ipq60xx=y
-CONFIG_TARGET_qualcommax_ipq60xx_DEVICE_zn_m2=y
+CONFIG_TARGET_qualcommax_ipq60xx_DEVICE_zhaoneng_zn-m2=y
 
 # =========================================================
 # 🚫 强力切除：彻底干掉导致崩溃的 SmartDNS 和 AdGuardHome
